@@ -17,6 +17,7 @@ export const Main = () => {
   const [data, setData]: any = useState();
   const useCollectionRef = collection(db, "pontuacao")
   const [isLoading, setIsLoading] = useState(true);
+ 
   useEffect(() => {
     const getUsers = async () => {
       const data = await getDocs(useCollectionRef)
@@ -25,7 +26,6 @@ export const Main = () => {
     getUsers()
     setIsLoading(false)
   }, [])
-
   useEffect(() => {
     const usuario_logado = localStorage.getItem('logged')
     if (usuario_logado === null)
@@ -41,11 +41,6 @@ export const Main = () => {
     }
   }
 
-  function delay(n: any) {
-    return new Promise(function (resolve) {
-      setTimeout(resolve, n * 1000);
-    });
-  }
 
   const [escolha, setEscolha]: any = useState()
   var [numero_computador, setNumero_computador]: any = useState()
@@ -99,7 +94,6 @@ export const Main = () => {
   }
 
   useEffect(() => {
-    console.log(resultado)
     if (resultado !== undefined) {
       SendResult()
     }
@@ -147,9 +141,9 @@ export const Main = () => {
                   <Spinner colorScheme={'blue'} />
                 </VStack>
               }
-              <Text textAlign={'center'}>Últimos jogos:</Text>
-              {data?.map((resultados: any) => (
-                <VStack key={resultados.id}>
+              <Text fontFamily={'Roboto, sans-serif'} fontSize={15} textColor={'black'} textAlign={'center'}><b>Últimos jogos:</b></Text>
+              {data?.slice(0, 3)?.map((resultados: any) => (
+                <VStack p={2} key={resultados.id}>
                   <HStack>
                     <Text fontSize={17} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.nome_user}</Text>
                     <Badge colorScheme={resultados.resultado === 'Você ganhou!' ? 'green' : resultados.resultado === 'Você perdeu!' ? 'red' : resultados.resultado === 'Empate' ? '' : 'yellow'} fontSize={16} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.resultado}</Badge>
