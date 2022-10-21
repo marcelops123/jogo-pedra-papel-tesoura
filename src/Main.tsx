@@ -1,18 +1,45 @@
 
-import { Box, Button, Input, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Badge, Box, Button, HStack, Input, Spinner, Text, VStack } from '@chakra-ui/react';
 import '@fontsource/roboto';
-import { useState } from 'react';
-
+import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { mutate } from 'swr';
+import { createNoSubstitutionTemplateLiteral } from 'typescript';
+import { firebaseApp } from './pages/Signup';
 const elementos: any = ['Pedra', 'Papel', 'Tesoura']
 
 export const Main = () => {
 
-  
-	const EnviarEscolhaComEnter = (event: any) => {
-		if (event.key === 'Enter') {
-			VerificarResultado();
-		}
-	}
+  const navigate = useNavigate()
+  const nome_user = localStorage.getItem('NomeUser')
+  const db = getFirestore(firebaseApp)
+  const [data, setData]: any = useState();
+  const useCollectionRef = collection(db, "pontuacao")
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const getUsers = async () => {
+      const data = await getDocs(useCollectionRef)
+      setData(data.docs.map((doc: any) => ({ ...doc.data(), id: doc.id })))
+    };
+    getUsers()
+    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const usuario_logado = localStorage.getItem('logged')
+    if (usuario_logado === null)
+      navigate('/')
+    else
+      <></>
+
+  }, [navigate])
+
+  const EnviarEscolhaComEnter = (event: any) => {
+    if (event.key === 'Enter') {
+      VerificarResultado();
+    }
+  }
 
   function delay(n: any) {
     return new Promise(function (resolve) {
@@ -23,7 +50,9 @@ export const Main = () => {
   const [escolha, setEscolha]: any = useState()
   var [numero_computador, setNumero_computador]: any = useState()
   const [resultado, setResultado]: any = useState()
+
   async function VerificarResultado() {
+
     var numero_aleatorio: Array<any>[any] = Math.floor(Math.random() * 3);
     if (escolha?.length < 5) {
       setResultado('')
@@ -36,7 +65,7 @@ export const Main = () => {
         setResultado('Você perdeu!')
       }
       else {
-        setResultado("Você ganhou!  ")
+        setResultado("Você ganhou!")
       }
 
     }
@@ -61,14 +90,32 @@ export const Main = () => {
       else {
         setResultado("Empate!")
       }
-    }
 
+
+    }
     setNumero_computador(numero_aleatorio)
-    await delay(3)
-    setEscolha('')
-    setResultado('')
+
+
   }
 
+  useEffect(() => {
+    console.log(resultado)
+    if (resultado !== undefined) {
+      SendResult()
+    }
+  }, [resultado])
+
+  async function SendResult() {
+
+    await addDoc(useCollectionRef, {
+
+      nome_user,
+      resultado
+
+    })
+
+    window.location.reload()
+  }
 
   return (
     <>
@@ -77,8 +124,8 @@ export const Main = () => {
 
         <Box p={1} borderRadius={10} mt={'18%'} bg={'white'} w={'auto'} h={'auto'}>
           <VStack>
-
-            <Input onKeyPress={(e: any) => EnviarEscolhaComEnter(e)} value={escolha} variant={'flushed'} _focus={{}} textTransform={'capitalize'} onChange={(e: any) => setEscolha(e.target.value)} textAlign={'center'} minW={'300px'} placeholder='Digite Pedra, Papel ou Tesoura'></Input>
+            <Text p={3} textColor={'black'} fontFamily={'Roboto, sans-serif'} fontSize={18}><b>Olá {nome_user}</b></Text>
+            <Input onKeyPress={(e: any) => EnviarEscolhaComEnter(e)} variant={'flushed'} _focus={{}} textTransform={'capitalize'} onChange={(e: any) => setEscolha(e.target.value)} textAlign={'center'} minW={'300px'} placeholder='Digite Pedra, Papel ou Tesoura'></Input>
             {escolha?.length > 0 &&
               <>
                 <Button variant={'ghost'} colorScheme={'blue'} onClick={() => VerificarResultado()}>Enviar Resposta</Button>
@@ -93,6 +140,24 @@ export const Main = () => {
                 }
               </>
             }
+
+            <Box w={'full'}>
+              {isLoading &&
+                <VStack>
+                  <Spinner colorScheme={'blue'} />
+                </VStack>
+              }
+              <Text textAlign={'center'}>Últimos jogos:</Text>
+              {data?.map((resultados: any) => (
+                <VStack key={resultados.id}>
+                  <HStack>
+                    <Text fontSize={17} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.nome_user}</Text>
+                    <Badge colorScheme={resultados.resultado === 'Você ganhou!' ? 'green' : resultados.resultado === 'Você perdeu!' ? 'red' : resultados.resultado === 'Empate' ? '' : 'yellow'} fontSize={16} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.resultado}</Badge>
+                  </HStack>
+                </VStack>
+              ))}
+
+            </Box>
           </VStack>
         </Box>
 
