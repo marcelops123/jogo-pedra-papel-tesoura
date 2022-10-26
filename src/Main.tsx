@@ -17,7 +17,7 @@ export const Main = () => {
   const [data, setData]: any = useState();
   const useCollectionRef = collection(db, "pontuacao")
   const [isLoading, setIsLoading] = useState(true);
- 
+
   useEffect(() => {
     const getUsers = async () => {
       const data = await getDocs(useCollectionRef)
@@ -100,11 +100,12 @@ export const Main = () => {
   }, [resultado])
 
   async function SendResult() {
-
+    const date = new Date().toLocaleTimeString();
     await addDoc(useCollectionRef, {
 
       nome_user,
-      resultado
+      resultado,
+      date
 
     })
 
@@ -144,6 +145,8 @@ export const Main = () => {
               <Text fontFamily={'Roboto, sans-serif'} fontSize={15} textColor={'black'} textAlign={'center'}><b>Últimos jogos:</b></Text>
               {data?.slice(0, 3)?.map((resultados: any) => (
                 <VStack p={2} key={resultados.id}>
+                  <Text fontSize={17} textColor={'blue'} fontFamily={'Roboto, sans-serif'}>Hora: <b>{resultados.date}</b></Text>
+
                   <HStack>
                     <Text fontSize={17} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.nome_user}</Text>
                     <Badge colorScheme={resultados.resultado === 'Você ganhou!' ? 'green' : resultados.resultado === 'Você perdeu!' ? 'red' : resultados.resultado === 'Empate' ? '' : 'yellow'} fontSize={16} textColor={'black'} fontFamily={'Roboto, sans-serif'}>{resultados.resultado}</Badge>

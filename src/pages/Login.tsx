@@ -9,12 +9,12 @@ import { db } from './Signup';
 export const Login = () => {
 
     const navigate = useNavigate();
-    const [email, setEmail]: any = useState()
-    const [senha, setSenha] = useState()
+    const [email, setEmail]: any = useState();
+    const [senha, setSenha] = useState();
     const [user, setUser]: any = useState();
     const [loginIsLoading, setIsLoadingLogin] = useState(false);
 
-    const useCollectionRef = collection(db, "users")
+    const useCollectionRef = collection(db, "users");
 
     const handleKeyPress = (event: any) => {
         if (event.key === 'Enter') {
@@ -25,7 +25,7 @@ export const Login = () => {
     useEffect(() => {
 
         const getUsers = async () => {
-            const data = await getDocs(useCollectionRef)
+            const data = await getDocs(useCollectionRef);
             setUser(data.docs.map((doc: any) => ({ ...doc.data(), id: doc.id })))
         };
         getUsers()
@@ -35,21 +35,19 @@ export const Login = () => {
 
         setIsLoadingLogin(true)
         if (user?.filter((getemail: any) => getemail.email?.includes(email) && getemail.senha?.includes(senha)).length > 0) {
-            message.destroy()
-            localStorage.clear()
-            localStorage.setItem('logged', '1')
+            message.destroy();
+            localStorage.clear();
+            localStorage.setItem('logged', '1');
             localStorage.setItem('NomeUser', (user?.filter((getuser: any) => getuser.email?.includes(email))?.[0]?.nome))
-            navigate('main')
-            message.success("Logado com sucesso!")
-            setIsLoadingLogin(false)
+            navigate('main');
+            message.success("Logado com sucesso!");
+            setIsLoadingLogin(false);
             return 1;
         }
         else
-            message.destroy()
-        message.error("Erro ao fazer login!")
-        setIsLoadingLogin(false)
-
-
+            message.destroy();
+        message.error("Erro ao fazer login!");
+        setIsLoadingLogin(false);
     }
 
     return (
@@ -66,7 +64,6 @@ export const Login = () => {
                 <Text position={'relative'} textColor={'white'}>Ainda não possui uma conta? Registre se <Button onClick={() => navigate('/signup')} fontSize={16} colorScheme={'blue'} variant={'link'}>aqui</Button></Text>
 
             </VStack>
-
 
         </ChakraProvider>
 
