@@ -108,7 +108,11 @@ export const Main = () => {
       date
 
     })
-
+    
+    function delay(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    await delay(2000);
     window.location.reload()
   }
 
